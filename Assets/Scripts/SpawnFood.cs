@@ -5,12 +5,12 @@ using UnityEngine;
 public class SpawnFood : MonoBehaviour {
 
     public int maxFood = 10;
-    public GameObject creature;
+    public GameObject food;
     Vector3 randomPos;
     void Start()
     {
         randomPos = NewRandomPos();
-        SpawnPopulation();
+        Spawn();
     }
 
     void Update()
@@ -18,11 +18,11 @@ public class SpawnFood : MonoBehaviour {
 
     }
 
-    void SpawnPopulation()
+    void Spawn()
     {
         for (int i = 0; i < maxFood; i++)
         {
-            Instantiate(creature, randomPos, Quaternion.identity);
+            Instantiate(food, randomPos, Quaternion.identity);
             randomPos = NewRandomPos();
         }
     }
