@@ -23,8 +23,10 @@ public class Creature : MonoBehaviour
 		maxSway = sway / 10;
         health = maxHealth;
 		randomPos = NewRandomPos();
+        Debug.Log(randomPos);
         foodPos = NewRandomPos();
-		Movement();
+        targetPos = transform.position;
+        Movement();
         InvokeRepeating("HealthModifier", 1, 1);
 	}
 

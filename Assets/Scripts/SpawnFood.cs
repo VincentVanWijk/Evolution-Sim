@@ -20,7 +20,7 @@ public class SpawnFood : MonoBehaviour {
 
     void SpawnPopulation()
     {
-        for (int i = 0; i < startPopulation; i++)
+        for (int i = 0; i < maxFood; i++)
         {
             Instantiate(creature, randomPos, Quaternion.identity);
             randomPos = NewRandomPos();
