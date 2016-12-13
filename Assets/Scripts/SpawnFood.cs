@@ -37,6 +37,7 @@ public class SpawnFood : MonoBehaviour {
 			randomPos = NewRandomPos();
 			Instantiate(food, randomPos, Quaternion.identity);
 		}
+		allFood = GameObject.FindGameObjectsWithTag("Food");
 	}
 
     Vector3 NewRandomPos()

@@ -21,8 +21,8 @@ public class Creature : MonoBehaviour
         }
 
         vision /= 10;
-        movingToFood = false;
 		maxSway = sway / 10;
+        movingToFood = false;
         health = maxHealth;
 		targetPos = NewRandomPos();
         Movement();
