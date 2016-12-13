@@ -131,13 +131,13 @@ public class Creature : MonoBehaviour
 	{
 		health -= 4;
 
-		if (!(maxHealth <= 10)) 
+		if (maxHealth > 10) 
 		{
 			maxHealth--;
 		}
 		if (health <= 0)
 		{
-			GameObject.Destroy(gameObject);
+			Destroy(gameObject);
 		}
 	}
 
