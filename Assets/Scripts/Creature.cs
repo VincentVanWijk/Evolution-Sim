@@ -5,13 +5,13 @@ using UnityEngine;
 public class Creature : MonoBehaviour 
 {
 	float x, y, maxSway;
-	public float sway, speed, health;
+	public float sway, speed, maxHealth, health;
 	public Vector3 randomPos;
 
 	void Start () 
 	{
 		maxSway = sway / 10;
-
+        health = maxHealth;
 		randomPos = NewRandomPos();
 		Movement();
 	}
@@ -26,13 +26,18 @@ public class Creature : MonoBehaviour
 	{
         if (health <= 0)
         {
-            return;
+            GameObject.Destroy(gameObject);
         }
 		float newX = 0, newY = 0;
         health--;
 
 		if(x < randomPos.x)
 		{
+            health += 50;
+            if(health > maxHealth)
+            {
+                health = maxHealth;
+            }
 			newX = Mathf.Round(Random.Range(0, SwayChecker(transform.position, randomPos)) * 10) / 10;
 
 		}
