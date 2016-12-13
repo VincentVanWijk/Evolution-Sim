@@ -6,11 +6,14 @@ public class SpawnFood : MonoBehaviour {
 
     public int maxFood = 10;
     public GameObject food;
+	public float spawnRate = 1.0f;
+	GameObject[] allFood;
     Vector3 randomPos;
     void Start()
     {
-        randomPos = NewRandomPos();
-        Spawn();
+		SpawnInitialFood();
+		allFood = GameObject.FindGameObjectsWithTag("Food");
+		InvokeRepeating("SpawnExtraFood",spawnRate,spawnRate);
     }
 
     void Update()
@@ -18,14 +21,23 @@ public class SpawnFood : MonoBehaviour {
 
     }
 
-    void Spawn()
+    void SpawnInitialFood()
     {
         for (int i = 0; i < maxFood; i++)
         {
-            Instantiate(food, randomPos, Quaternion.identity);
             randomPos = NewRandomPos();
+			Instantiate(food, randomPos, Quaternion.identity);
         }
     }
+
+	void SpawnExtraFood()
+	{
+		if(allFood.Length < maxFood)
+		{
+			randomPos = NewRandomPos();
+			Instantiate(food, randomPos, Quaternion.identity);
+		}
+	}
 
     Vector3 NewRandomPos()
     {

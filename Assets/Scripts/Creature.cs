@@ -5,11 +5,12 @@ using UnityEngine;
 public class Creature : MonoBehaviour 
 {
 	float x, y, maxSway;
-    bool movingToFood;
+    public bool movingToFood;
     public float sway, speed, maxHealth, health, vision;
-	public Vector3 randomPos, foodPos, targetPos;
+	public Vector3 targetPos;
     public bool male;
     public Sprite milfSprite;
+	Collider2D[] foodInVision;
 
 	void Start () 
 	{
@@ -18,14 +19,12 @@ public class Creature : MonoBehaviour
             SpriteRenderer sr = GetComponent<SpriteRenderer>();
             sr.sprite = milfSprite;
         }
+
         vision /= 10;
         movingToFood = false;
 		maxSway = sway / 10;
         health = maxHealth;
-		randomPos = NewRandomPos();
-        Debug.Log(randomPos);
-        foodPos = NewRandomPos();
-        targetPos = transform.position;
+		targetPos = NewRandomPos();
         Movement();
         InvokeRepeating("HealthModifier", 1, 1);
 	}
@@ -34,102 +33,91 @@ public class Creature : MonoBehaviour
     {
         x = transform.position.x;
         y = transform.position.y;
-        if (!movingToFood && Vector3.Distance(transform.position, foodPos) < vision)
-        {
-            iTween.Stop(gameObject);
-            targetPos = foodPos;
-            movingToFood = true;
-            Movement();
-        }
-        
     }
-
-    void HealthModifier()
-    {
-        health -= 2;
-        if (maxHealth > 10)
-        {
-            maxHealth--;
-        }
-    }
-
 
     void Movement()
 	{
-        if (health <= 0)
-        {
-            GameObject.Destroy(gameObject);
-        }
+		//als ik niet onderweg ben, zoek eten
+		if(!movingToFood)
+		{
+			Vector3 foodPos = LookForFood();
+
+			//als er eten gevonden is (foodpos is dan dus niet (0,0,0)), zet dit als target
+			if(foodPos != Vector3.zero)
+			{
+				targetPos = foodPos;
+			}
+		} 
+
+		//geef de sway mee
 		float newX = 0, newY = 0;
 
-		if(x < randomPos.x)
+		if(x < targetPos.x)
 		{
-			newX = Mathf.Round(Random.Range(0, SwayChecker(transform.position, randomPos)) * 10) / 10;
-
+			newX = Mathf.Round(Random.Range(0, SwayChecker(transform.position, targetPos)) * 10) / 10;
 		}
-		else if (x > randomPos.x)
+		else if (x > targetPos.x)
 		{
-			newX = Mathf.Round(Random.Range(0, SwayChecker(transform.position, randomPos)) * 10) / 10;
+			newX = Mathf.Round(Random.Range(0, SwayChecker(transform.position, targetPos)) * 10) / 10;
 			newX *= -1;
 		}
 			
-		if(y < randomPos.y)
+		if(y < targetPos.y)
 		{
-			newY = Mathf.Round(Random.Range(0, SwayChecker(transform.position, randomPos)) * 10) / 10;
+			newY = Mathf.Round(Random.Range(0, SwayChecker(transform.position, targetPos)) * 10) / 10;
 		}
-		else if (y > randomPos.y)
+		else if (y > targetPos.y)
 		{
-			newY = Mathf.Round(Random.Range(0, SwayChecker(transform.position, randomPos)) * 10) / 10;
+			newY = Mathf.Round(Random.Range(0, SwayChecker(transform.position, targetPos)) * 10) / 10;
 			newY *= -1;
 		}
 
 		newX += transform.position.x;
 		newY += transform.position.y;
-        if (Vector3.Distance(transform.position, targetPos) < 0.1f)
-        {
-            targetPos = new Vector3(newX, newY, 0);
-        }
 
-        if (Vector3.Distance(transform.position, foodPos) < 0.1f)
-        {
-            Eat();
-        }
+		//maak niewe kleine stap richting target met de sway
+		Vector3 moveToPos = new Vector3(newX,newY,0);
 
+		//beweeg naar target met de kleine stap
         iTween.MoveTo(gameObject, 
 			iTween.Hash
 			(
-				"position", targetPos,
+				"position", moveToPos,
 				"speed", speed,
 				"easetype", iTween.EaseType.linear,
 				"oncompletetarget", this.gameObject,
 				"oncomplete", "Movement"
 			));
 
-			if(Vector3.Distance(transform.position,randomPos) < 0.1f)
-			{
-				randomPos = NewRandomPos();
-			}
+		//als je bij target bent aangekomen, zet nieuwe random pos
+		if(Vector3.Distance(transform.position,targetPos) < 0.1f)
+		{
+			targetPos = NewRandomPos();
+		}
 	}
 
-    void Eat()
-    {
-        health += 4;
-        if (health > maxHealth)
-        {
-            health = maxHealth;
-        }
-        foodPos = NewRandomPos();
-        movingToFood = false;
-    }
-
-	Vector3 NewRandomPos()
+	Vector3 LookForFood()
 	{
-		float x = Mathf.Round(Random.Range(0f,5f) * 10) / 10;
-		float y = Mathf.Round(Random.Range(0f,5f) * 10) / 10;
-		Vector3 pos = new Vector3(x,y,0);
-		return pos;
+		//array met alle colliders die zich binnen vision begeven
+		foodInVision =  Physics2D.OverlapCircleAll(transform.position, vision);
+
+		if(foodInVision != null) //als er colliders gevonden zijn
+		{
+			foreach(var food in foodInVision)
+			{
+				if(food.tag == "Food") //we moeten checken of de tag food is, hij vind nml. ook zijn eigen collider
+				{
+					movingToFood = true; //zo ja, geef foodpos terug
+					Vector3 foundFoodPos = food.transform.position;
+
+					return foundFoodPos;
+				}
+			}
+		}
+		return Vector3.zero; //als er niets gevonden is geven we pos van (0,0,0) terug
 	}
 
+	//zorgt dat de sway nooit meer kan zijn dan de afstand tot de target
 	float SwayChecker(Vector3 myPos, Vector3 targetPos)
 	{
 		float distance = Vector3.Distance(myPos, targetPos);
@@ -146,9 +134,46 @@ public class Creature : MonoBehaviour
 		return maxSway;
 	}
 
+	//haalt de hp eraf
+	void HealthModifier()
+	{
+		health --;
+
+		if (health <= 0)
+		{
+			GameObject.Destroy(gameObject);
+		}
+	}
+
+	Vector3 NewRandomPos()
+	{
+		float x = Mathf.Round(Random.Range(0f, 5f) * 10) / 10;
+		float y = Mathf.Round(Random.Range(0f, 5f) * 10) / 10;
+		Vector3 pos = new Vector3(x,y,0);
+		return pos;
+	}
+
+	void OnCollisionEnter2D(Collision2D other)
+	{
+		//als een food geraakt word, geef health, destroy de food en zet foodpos op null
+		if(other.gameObject.tag == "Food")
+		{
+			health += 4;
+			if (health > maxHealth)
+			{
+				health = maxHealth;
+			}
+			Destroy(other.gameObject);
+			foodInVision = null;
+			movingToFood = false;
+		}
+	}
+
 	void OnDrawGizmos()
 	{
-		Gizmos.DrawCube(foodPos, new Vector3(0.1f,0.1f,0));
-
+		Gizmos.color = Color.blue;
+		Gizmos.DrawCube(targetPos, new Vector3(0.05f,0.05f,0));
+		Gizmos.color = Color.red;
+		Gizmos.DrawWireCube(transform.position,new Vector3(vision * 2, vision * 2, 0));
 	}
 }
