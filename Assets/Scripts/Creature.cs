@@ -8,9 +8,16 @@ public class Creature : MonoBehaviour
     bool movingToFood;
     public float sway, speed, maxHealth, health, vision;
 	public Vector3 randomPos, foodPos, targetPos;
+    public bool male;
+    public Sprite milfSprite;
 
 	void Start () 
 	{
+        if(!male)
+        {
+            SpriteRenderer sr = GetComponent<SpriteRenderer>();
+            sr.sprite = milfSprite;
+        }
         vision /= 10;
         movingToFood = false;
 		maxSway = sway / 10;
@@ -25,7 +32,7 @@ public class Creature : MonoBehaviour
     {
         x = transform.position.x;
         y = transform.position.y;
-        if ((!movingToFood && Vector3.Distance(transform.position, foodPos) < vision))
+        if (!movingToFood && Vector3.Distance(transform.position, foodPos) < vision)
         {
             iTween.Stop(gameObject);
             targetPos = foodPos;

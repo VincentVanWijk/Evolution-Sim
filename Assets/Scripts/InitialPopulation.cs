@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class InitialPopulation : MonoBehaviour 
 {
-	public int startPopulation = 5;
-	public GameObject creature;
+	public int startPopulation = 5, playSpeed = 1;
+	public GameObject creatureObj;
+    public float speedMin = 1, speedMax = 3, swayMin = 1, swayMax = 3, visionMin = 1, visionMax = 3;
 	Vector3 randomPos;
 	void Start ()
 	{
@@ -22,8 +23,15 @@ public class InitialPopulation : MonoBehaviour
 	{
 		for(int i = 0; i < startPopulation; i++)
 		{
-			Instantiate(creature,randomPos,Quaternion.identity);
-			randomPos = NewRandomPos();
+
+            GameObject c = Instantiate(creatureObj, randomPos, Quaternion.identity) as GameObject;
+            Creature creature = c.GetComponent<Creature>();
+            creature.speed = Random.Range(speedMin, speedMax);
+            creature.sway = Random.Range(swayMin, swayMax);
+            creature.vision = Random.Range(visionMin, visionMax);
+
+
+            randomPos = NewRandomPos();
 		}
 	}
 
