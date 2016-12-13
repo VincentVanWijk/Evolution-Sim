@@ -24,9 +24,10 @@ public class Creature : MonoBehaviour
 		maxSway = sway / 10;
         movingToFood = false;
         health = maxHealth;
-		targetPos = NewRandomPos();
+		targetPos = NewRandomPos(); //in het begin is target random
         Movement();
         InvokeRepeating("HealthModifier", 1, 1);
+		//InvokeRepeating("LookForFood",0.5f,0.5f);
 	}
 
     void Update()
@@ -40,7 +41,7 @@ public class Creature : MonoBehaviour
 		//als ik niet onderweg ben, zoek eten
 		if(!movingToFood)
 		{
-			Vector3 foodPos = LookForFood();
+			Vector3 foodPos = LookForFood(); 
 
 			//als er eten gevonden is (foodpos is dan dus niet (0,0,0)), zet dit als target
 			if(foodPos != Vector3.zero)
@@ -153,19 +154,25 @@ public class Creature : MonoBehaviour
 		return pos;
 	}
 
+	void Eat(GameObject food)
+	{
+		health += 4;
+		if (health > maxHealth)
+		{
+			health = maxHealth;
+		}
+		Destroy(food);
+		foodInVision = null;
+		movingToFood = false;
+		targetPos = NewRandomPos();
+	}
+
 	void OnCollisionEnter2D(Collision2D other)
 	{
 		//als een food geraakt word, geef health, destroy de food en zet foodpos op null
 		if(other.gameObject.tag == "Food")
 		{
-			health += 4;
-			if (health > maxHealth)
-			{
-				health = maxHealth;
-			}
-			Destroy(other.gameObject);
-			foodInVision = null;
-			movingToFood = false;
+			Eat(other.gameObject);
 		}
 	}
 
