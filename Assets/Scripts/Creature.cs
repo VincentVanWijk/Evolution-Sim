@@ -27,7 +27,7 @@ public class Creature : MonoBehaviour
 		targetPos = NewRandomPos(); //in het begin is target random
         Movement();
         InvokeRepeating("HealthModifier", 1, 1);
-		//InvokeRepeating("LookForFood",0.5f,0.5f);
+		InvokeRepeating("LookForFood",0.5f,0.5f);
 	}
 
     void Update()
@@ -41,13 +41,7 @@ public class Creature : MonoBehaviour
 		//als ik niet onderweg ben, zoek eten
 		if(!movingToFood)
 		{
-			Vector3 foodPos = LookForFood(); 
-
-			//als er eten gevonden is (foodpos is dan dus niet (0,0,0)), zet dit als target
-			if(foodPos != Vector3.zero)
-			{
-				targetPos = foodPos;
-			}
+			LookForFood();
 		} 
 
 		//geef de sway mee
@@ -97,7 +91,7 @@ public class Creature : MonoBehaviour
 		}
 	}
 
-	Vector3 LookForFood()
+	void LookForFood()
 	{
 		//array met alle colliders die zich binnen vision begeven
 		foodInVision =  Physics2D.OverlapCircleAll(transform.position, vision);
@@ -109,13 +103,10 @@ public class Creature : MonoBehaviour
 				if(food.tag == "Food") //we moeten checken of de tag food is, hij vind nml. ook zijn eigen collider
 				{
 					movingToFood = true; //zo ja, geef foodpos terug
-					Vector3 foundFoodPos = food.transform.position;
-
-					return foundFoodPos;
+					targetPos = food.transform.position;
 				}
 			}
 		}
-		return Vector3.zero; //als er niets gevonden is geven we pos van (0,0,0) terug
 	}
 
 	//zorgt dat de sway nooit meer kan zijn dan de afstand tot de target
