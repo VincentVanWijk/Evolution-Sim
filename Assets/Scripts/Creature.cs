@@ -4,13 +4,12 @@ using UnityEngine;
 
 public class Creature : MonoBehaviour 
 {
-	float x,y, sway, maxSway, speed;
+	float x, y, maxSway;
+	public float sway, speed, health;
 	public Vector3 randomPos;
 
 	void Start () 
 	{
-		sway = 3;
-		speed = 1;
 		maxSway = sway / 10;
 
 		randomPos = NewRandomPos();
@@ -25,7 +24,12 @@ public class Creature : MonoBehaviour
 
 	void Movement()
 	{
+        if (health <= 0)
+        {
+            return;
+        }
 		float newX = 0, newY = 0;
+        health--;
 
 		if(x < randomPos.x)
 		{
