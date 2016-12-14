@@ -5,12 +5,14 @@ using UnityEngine;
 public class Creature : MonoBehaviour 
 {
 	float x, y, maxSway;
-    public bool movingToFood;
+    public bool movingToFood, movingToCreature = false;
     public float sway, speed, maxHealth, health, vision;
 	public Vector3 targetPos;
     public bool male;
     public Sprite milfSprite;
 	Collider2D[] foodInVision;
+	Collider2D[] creatureInVision;
+	public GameObject creatureObj;
 
 	void Start () 
 	{
@@ -28,6 +30,7 @@ public class Creature : MonoBehaviour
         Movement();
         InvokeRepeating("HealthModifier", 1, 1);
 		InvokeRepeating("LookForFood",0.5f,0.5f);
+		InvokeRepeating ("LookForCreature", 0.5f, 0.5f);
 	}
 
     void Update()
@@ -42,6 +45,7 @@ public class Creature : MonoBehaviour
 		if(!movingToFood)
 		{
 			LookForFood();
+			LookForCreature();
 		} 
 
 		//geef de sway mee
@@ -98,12 +102,36 @@ public class Creature : MonoBehaviour
 
 		if(foodInVision != null) //als er colliders gevonden zijn
 		{
+			
 			foreach(var food in foodInVision)
 			{
 				if(food.tag == "Food") //we moeten checken of de tag food is, hij vind nml. ook zijn eigen collider
 				{
 					movingToFood = true; //zo ja, geef foodpos terug
 					targetPos = food.transform.position;
+				}
+			}
+		}
+	}
+
+	void LookForCreature()
+	{
+		//array met alle colliders die zich binnen vision begeven
+		creatureInVision =  Physics2D.OverlapCircleAll(transform.position, vision);
+
+		if(creatureInVision != null) //als er colliders gevonden zijn
+		{
+
+			foreach(var creature in creatureInVision)
+			{
+				//Debug.Log (creature.tag);
+				if(creature.tag == "Creature") //we moeten checken of de tag food is, hij vind nml. ook zijn eigen collider
+				{
+					if (creature.gameObject.GetComponent<Creature> ().male != male) 
+					{
+						movingToCreature = true;
+						targetPos = creature.transform.position;
+					}
 				}
 			}
 		}
@@ -169,6 +197,11 @@ public class Creature : MonoBehaviour
 		{
 			Eat(other.gameObject);
 		}
+		else if(other.gameObject.tag == "Creature")
+		{
+			Debug.Log ("SpawnChildCall");
+			SpawnChild (other.gameObject.GetComponent<Creature>());
+		}
 	}
 
 	void OnDrawGizmos()
@@ -177,5 +210,16 @@ public class Creature : MonoBehaviour
 		Gizmos.DrawCube(targetPos, new Vector3(0.05f,0.05f,0));
 		Gizmos.color = Color.red;
 		Gizmos.DrawWireCube(transform.position,new Vector3(vision * 2, vision * 2, 0));
+	}
+
+	void SpawnChild(Creature otherCreature)
+	{
+		Debug.Log ("SpawnChild");
+		GameObject c = Instantiate(creatureObj, otherCreature.transform.position, Quaternion.identity) as GameObject;
+		Creature creature = c.GetComponent<Creature>();
+		creature.speed = Random.Range(otherCreature.speed, speed);
+		creature.sway = Random.Range(otherCreature.sway, sway);
+		creature.vision = Random.Range(otherCreature.vision, vision);
+		creature.maxHealth = Random.Range (otherCreature.maxHealth, maxHealth);
 	}
 }

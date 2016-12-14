@@ -6,7 +6,7 @@ public class InitialPopulation : MonoBehaviour
 {
 	public int startPopulation = 5, playSpeed = 1;
 	public GameObject creatureObj;
-    public float speedMin = 1, speedMax = 3, swayMin = 1, swayMax = 3, visionMin = 1, visionMax = 3;
+	public float speedMin = 1, speedMax = 3, swayMin = 1, swayMax = 3, visionMin = 1, visionMax = 3, maxHealthMin = 50, maxHealthMax = 150;
 	Vector3 randomPos;
 	void Start ()
 	{
@@ -29,6 +29,7 @@ public class InitialPopulation : MonoBehaviour
             creature.speed = Random.Range(speedMin, speedMax);
             creature.sway = Random.Range(swayMin, swayMax);
             creature.vision = Random.Range(visionMin, visionMax);
+			creature.maxHealth = Random.Range (maxHealthMin, maxHealthMax);
 
 
             randomPos = NewRandomPos();
