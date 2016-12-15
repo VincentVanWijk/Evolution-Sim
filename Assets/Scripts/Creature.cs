@@ -13,6 +13,7 @@ public class Creature : MonoBehaviour
 	Collider2D[] foodInVision;
 	Collider2D[] creatureInVision;
 	public GameObject creatureObj;
+	public bool noSpawn = false;
 
 	void Start () 
 	{
@@ -116,21 +117,19 @@ public class Creature : MonoBehaviour
 
 	void LookForCreature()
 	{
-		//array met alle colliders die zich binnen vision begeven
-		creatureInVision =  Physics2D.OverlapCircleAll(transform.position, vision);
+		if (!noSpawn) {
+			//array met alle colliders die zich binnen vision begeven
+			creatureInVision = Physics2D.OverlapCircleAll (transform.position, vision);
 
-		if(creatureInVision != null) //als er colliders gevonden zijn
-		{
+			if (creatureInVision != null) { //als er colliders gevonden zijn
 
-			foreach(var creature in creatureInVision)
-			{
-				//Debug.Log (creature.tag);
-				if(creature.tag == "Creature") //we moeten checken of de tag food is, hij vind nml. ook zijn eigen collider
-				{
-					if (creature.gameObject.GetComponent<Creature> ().male != male) 
-					{
-						movingToCreature = true;
-						targetPos = creature.transform.position;
+				foreach (var creature in creatureInVision) {
+					//Debug.Log (creature.tag);
+					if (creature.tag == "Creature") { //we moeten checken of de tag food is, hij vind nml. ook zijn eigen collider
+						if (creature.gameObject.GetComponent<Creature> ().male != male) {
+							movingToCreature = true;
+							targetPos = creature.transform.position;
+						}
 					}
 				}
 			}
@@ -197,9 +196,8 @@ public class Creature : MonoBehaviour
 		{
 			Eat(other.gameObject);
 		}
-		else if(other.gameObject.tag == "Creature")
+		else if(other.gameObject.tag == "Creature" && !noSpawn)
 		{
-			Debug.Log ("SpawnChildCall");
 			SpawnChild (other.gameObject.GetComponent<Creature>());
 		}
 	}
@@ -215,11 +213,26 @@ public class Creature : MonoBehaviour
 	void SpawnChild(Creature otherCreature)
 	{
 		Debug.Log ("SpawnChild");
-		GameObject c = Instantiate(creatureObj, otherCreature.transform.position, Quaternion.identity) as GameObject;
-		Creature creature = c.GetComponent<Creature>();
-		creature.speed = Random.Range(otherCreature.speed, speed);
-		creature.sway = Random.Range(otherCreature.sway, sway);
-		creature.vision = Random.Range(otherCreature.vision, vision);
-		creature.maxHealth = Random.Range (otherCreature.maxHealth, maxHealth);
+		//GameObject c = Instantiate(creatureObj, otherCreature.transform.position, Quaternion.identity) as GameObject;
+		//Creature creature = c.GetComponent<Creature>();
+		//creature.speed = Random.Range(otherCreature.speed, speed);
+		//creature.sway = Random.Range(otherCreature.sway, sway);
+		//creature.vision = Random.Range(otherCreature.vision, vision);
+		//creature.maxHealth = Random.Range (otherCreature.maxHealth, maxHealth);
+		if (!noSpawn) 
+		{
+			Vector3 newPos = otherCreature.transform.position;
+			newPos.x += 5;
+
+			GameObject c = Instantiate (creatureObj, newPos, Quaternion.identity) as GameObject;
+			Creature creature = c.GetComponent<Creature> ();
+			creature.speed = 2;
+			creature.sway = 3;
+			creature.vision = 5;
+			creature.maxHealth = 100;
+			noSpawn = true;
+		}
+		//yield return new WaitForSeconds(10);
+		//noSpawn = false;
 	}
 }
