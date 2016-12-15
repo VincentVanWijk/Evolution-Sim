@@ -219,10 +219,10 @@ public class Creature : MonoBehaviour
 		//creature.sway = Random.Range(otherCreature.sway, sway);
 		//creature.vision = Random.Range(otherCreature.vision, vision);
 		//creature.maxHealth = Random.Range (otherCreature.maxHealth, maxHealth);
-		if (!noSpawn) 
+		if (!noSpawn && male) 
 		{
 			Vector3 newPos = otherCreature.transform.position;
-			newPos.x += 5;
+			newPos.x += 0.5f;
 
 			GameObject c = Instantiate (creatureObj, newPos, Quaternion.identity) as GameObject;
 			Creature creature = c.GetComponent<Creature> ();
