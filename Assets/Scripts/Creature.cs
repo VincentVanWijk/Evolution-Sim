@@ -231,6 +231,8 @@ public class Creature : MonoBehaviour
 			creature.vision = 5;
 			creature.maxHealth = 100;
 			noSpawn = true;
+			int random = Random.Range (0, 2);
+			creature.male = random == 0 ? true : false;
 		}
 		//yield return new WaitForSeconds(10);
 		//noSpawn = false;
