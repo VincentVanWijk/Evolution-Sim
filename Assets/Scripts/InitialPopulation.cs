@@ -30,6 +30,8 @@ public class InitialPopulation : MonoBehaviour
             creature.sway = Random.Range(swayMin, swayMax);
             creature.vision = Random.Range(visionMin, visionMax);
 			creature.maxHealth = Random.Range (maxHealthMin, maxHealthMax);
+			int random = Random.Range (0, 2);
+			creature.male = random == 0 ? true : false;
 
 
             randomPos = NewRandomPos();

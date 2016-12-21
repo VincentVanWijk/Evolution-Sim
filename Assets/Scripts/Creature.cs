@@ -12,7 +12,7 @@ public class Creature : MonoBehaviour
     public Sprite milfSprite;
 	Collider2D[] foodInVision;
 	Collider2D[] creatureInVision;
-	public GameObject creatureObj;
+	public GameObject creatureObj, child;
 	public bool noSpawn = false;
 
 	void Start () 
@@ -198,7 +198,7 @@ public class Creature : MonoBehaviour
 		}
 		else if(other.gameObject.tag == "Creature" && !noSpawn)
 		{
-			SpawnChild (other.gameObject.GetComponent<Creature>());
+			SpawnChild ();
 		}
 	}
 
@@ -210,7 +210,7 @@ public class Creature : MonoBehaviour
 		Gizmos.DrawWireCube(transform.position,new Vector3(vision * 2, vision * 2, 0));
 	}
 
-	void SpawnChild(Creature otherCreature)
+	void SpawnChild()
 	{
 		Debug.Log ("SpawnChild");
 		//GameObject c = Instantiate(creatureObj, otherCreature.transform.position, Quaternion.identity) as GameObject;
@@ -221,11 +221,11 @@ public class Creature : MonoBehaviour
 		//creature.maxHealth = Random.Range (otherCreature.maxHealth, maxHealth);
 		if (!noSpawn && male) 
 		{
-			Vector3 newPos = otherCreature.transform.position;
+			Vector3 newPos = transform.position;
 			newPos.x += 0.5f;
 
-			GameObject c = Instantiate (creatureObj, newPos, Quaternion.identity) as GameObject;
-			Creature creature = c.GetComponent<Creature> ();
+			Instantiate (child, newPos, Quaternion.identity);
+			Creature creature = child.GetComponent<Creature> ();
 			creature.speed = 2;
 			creature.sway = 3;
 			creature.vision = 5;
