@@ -15,6 +15,11 @@ public class Creature : MonoBehaviour
 	public GameObject creatureObj, child;
 	public bool noSpawn = false;
 
+	void Awake()
+	{
+		iTween.Init(gameObject);
+	}
+
 	void Start () 
 	{
         if(!male)
@@ -22,6 +27,8 @@ public class Creature : MonoBehaviour
             SpriteRenderer sr = GetComponent<SpriteRenderer>();
             sr.sprite = milfSprite;
         }
+		Invoke("NoSpawnFalse", 10);
+
 
         vision /= 10;
 		maxSway = sway / 10;
@@ -198,7 +205,7 @@ public class Creature : MonoBehaviour
 		}
 		else if(other.gameObject.tag == "Creature" && !noSpawn)
 		{
-			SpawnChild ();
+			SpawnChild (other.gameObject);
 		}
 	}
 
@@ -210,7 +217,7 @@ public class Creature : MonoBehaviour
 		Gizmos.DrawWireCube(transform.position,new Vector3(vision * 2, vision * 2, 0));
 	}
 
-	void SpawnChild()
+	void SpawnChild(GameObject other)
 	{
 		Debug.Log ("SpawnChild");
 		//GameObject c = Instantiate(creatureObj, otherCreature.transform.position, Quaternion.identity) as GameObject;
@@ -221,20 +228,25 @@ public class Creature : MonoBehaviour
 		//creature.maxHealth = Random.Range (otherCreature.maxHealth, maxHealth);
 		if (!noSpawn && male) 
 		{
-			Vector3 newPos = transform.position;
+			Vector3 newPos = transform.position ;
 			newPos.x += 0.5f;
 
-			Instantiate (child, newPos, Quaternion.identity);
-			Creature creature = child.GetComponent<Creature> ();
+			GameObject test = Instantiate (child, newPos, Quaternion.identity) as GameObject;
+			Creature creature = test.GetComponent<Creature> ();
 			creature.speed = 2;
 			creature.sway = 3;
 			creature.vision = 5;
 			creature.maxHealth = 100;
 			noSpawn = true;
+			Invoke("NoSpawnFalse", 40);
 			int random = Random.Range (0, 2);
 			creature.male = random == 0 ? true : false;
+			creature.gameObject.name = "Child";
 		}
-		//yield return new WaitForSeconds(10);
-		//noSpawn = false;
+	}
+
+	void NoSpawnFalse()
+	{
+		noSpawn = false;
 	}
 }
